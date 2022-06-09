@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"math"
 	"net/http"
 
 	"github.com/maxence-charriere/go-app/v9/pkg/app"
@@ -11,18 +13,27 @@ type hello struct {
 	app.Compo
 
 	name string
+	cols int
 }
 
 func (h *hello) Render() app.UI {
-	return app.Div().Body(
-		app.H1().Body(
+	fmt.Println(h.cols)
+	h.cols = int(math.Max(float64(h.cols), 1))
+	elems := make([]app.UI, h.cols)
+	for i := 0; i < h.cols; i++ {
+		elems[i] = app.Td().Body(app.H1().Body(
 			app.Text("Hello, "),
 			app.If(h.name != "",
 				app.Text(h.name),
 			).Else(
 				app.Text("World!"),
 			),
-		),
+		))
+	}
+	hellos := app.Table().Body(elems...).Style("width", "100%")
+
+	return app.Div().Body(
+		hellos,
 		app.P().Body(
 			app.Input().
 				Type("text").
@@ -30,6 +41,14 @@ func (h *hello) Render() app.UI {
 				Placeholder("What is your name?").
 				AutoFocus(true).
 				OnChange(h.ValueTo(&h.name)),
+		),
+		app.P().Body(
+			app.Input().
+				Type("int").
+				Value(h.cols).
+				Placeholder("How many times?").
+				AutoFocus(false).
+				OnChange(h.ValueTo(&h.cols)),
 		),
 	)
 }
@@ -66,6 +85,9 @@ func main() {
 	http.Handle("/", &app.Handler{
 		Name:        "Hello",
 		Description: "An Hello World! example",
+		Styles: []string{
+			"/assets/css/murlok.css",
+		},
 	})
 
 	if err := http.ListenAndServe(":8000", nil); err != nil {
