@@ -86,7 +86,7 @@ func main() {
 		Name:        "Hello",
 		Description: "An Hello World! example",
 		Styles: []string{
-			"/assets/css/murlok.css",
+			"https://raw.githubusercontent.com/mr2cef/go-webapp-test/main/assets/css/murlok.css",
 		},
 	})
 
